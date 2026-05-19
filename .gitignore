@@ -1,0 +1,10 @@
+# Typescript
+
+node_modules/
+.idea/
+.cache/
+coverage/
+*.log
+*.swp
+.env.local
+out/
