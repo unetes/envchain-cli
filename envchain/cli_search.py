@@ -5,6 +5,12 @@ from envchain.registry import ChainRegistry
 from envchain.searcher import search_keys
 
 
+def _format_result_text(r) -> str:
+    """Format a single search result as a human-readable string."""
+    tag = " [value]" if r.matched_value else ""
+    return f"  [{r.chain_name}] {r.key}={r.value}{tag}"
+
+
 def cmd_search(args: argparse.Namespace, registry: ChainRegistry) -> int:
     """Search for a key (and optionally value) across chains.
 
@@ -42,8 +48,7 @@ def cmd_search(args: argparse.Namespace, registry: ChainRegistry) -> int:
     else:
         print(f"Found {summary.total} result(s) for '{query}':")
         for r in summary.results:
-            tag = " [value]" if r.matched_value else ""
-            print(f"  [{r.chain_name}] {r.key}={r.value}{tag}")
+            print(_format_result_text(r))
 
     return 0
 
