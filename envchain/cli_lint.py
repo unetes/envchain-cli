@@ -19,6 +19,9 @@ def cmd_lint(args: argparse.Namespace, registry: ChainRegistry) -> int:
             print("No chains found in registry.")
             return 0
     else:
+        if args.chain_name not in registry:
+            print(f"Error: chain '{args.chain_name}' not found in registry.")
+            return 3
         report = lint_chain(args.chain_name, registry)
         results = {args.chain_name: report}
 
