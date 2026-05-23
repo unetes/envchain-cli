@@ -55,6 +55,25 @@ def freeze_reason(index: FreezeIndex, chain_name: str) -> str:
     return index._frozen.get(chain_name, "")
 
 
+def assert_not_frozen(index: FreezeIndex, chain_name: str, action: str = "modify") -> None:
+    """Raise *FreezeError* if *chain_name* is currently frozen.
+
+    Intended as a guard at the start of any operation that would mutate a
+    chain's variables.  *action* is included in the error message to give the
+    caller context about what was attempted.
+
+    Example::
+
+        assert_not_frozen(idx, "prod", action="add variable to")
+    """
+    if chain_name in index._frozen:
+        reason = index._frozen[chain_name]
+        detail = f" Reason: {reason}" if reason else ""
+        raise FreezeError(
+            f"Cannot {action} chain '{chain_name}': it is frozen.{detail}"
+        )
+
+
 def save_freeze_index(index: FreezeIndex, path: Path) -> None:
     path.write_text(json.dumps(index.to_dict(), indent=2))
 
