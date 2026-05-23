@@ -69,6 +69,13 @@ def test_multiple_chains_independent(idx):
     assert not idx.is_pinned("staging", "KEY")
 
 
+def test_pin_duplicate_key_is_idempotent(idx):
+    """Pinning the same key twice should not duplicate it in the index."""
+    idx.pin("prod", "DB_URL")
+    idx.pin("prod", "DB_URL")
+    assert idx.pinned_keys("prod").count("DB_URL") == 1
+
+
 def test_apply_pins_returns_resolved_vars():
     pin_index = PinIndex()
     pin_index.pin("prod", "DB_URL")
