@@ -20,6 +20,18 @@ def _format_entry(entry: AuditEntry) -> str:
     return f"{entry}  {old} -> {new}{note}"
 
 
+def _parse_since(since_str: str) -> Optional[float]:
+    """Parse a --since argument (hours as a float) into a UTC timestamp.
+
+    Returns the cutoff timestamp, or None if since_str is empty.
+    Raises ValueError if since_str is not a valid number.
+    """
+    if not since_str:
+        return None
+    hours = float(since_str)  # raises ValueError on bad input
+    return time.time() - hours * 3600
+
+
 def cmd_audit_log(args: argparse.Namespace, log_path: Path = DEFAULT_LOG) -> int:
     """Print filtered audit log entries to stdout."""
     entries = load_log(log_path)
@@ -27,7 +39,7 @@ def cmd_audit_log(args: argparse.Namespace, log_path: Path = DEFAULT_LOG) -> int
     since: Optional[float] = None
     if hasattr(args, "since") and args.since:
         try:
-            since = time.time() - float(args.since) * 3600
+            since = _parse_since(args.since)
         except ValueError:
             print(f"Error: --since must be a number of hours, got {args.since!r}")
             return 2
