@@ -61,6 +61,25 @@ def render_vars(
     return {key: render_value(value, merged_context, strict=strict) for key, value in vars_.items()}
 
 
+def extract_variable_refs(template: str) -> list[str]:
+    """Return a list of variable names referenced in the template string.
+
+    Args:
+        template: The template string to inspect.
+
+    Returns:
+        A list of unique variable names in the order they first appear.
+    """
+    seen: set[str] = set()
+    refs: list[str] = []
+    for match in _VAR_PATTERN.finditer(template):
+        key = match.group(1) or match.group(2)
+        if key not in seen:
+            seen.add(key)
+            refs.append(key)
+    return refs
+
+
 def has_template_syntax(value: str) -> bool:
     """Return True if the value contains template variable references."""
     return bool(_VAR_PATTERN.search(value))
