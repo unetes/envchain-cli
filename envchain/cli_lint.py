@@ -31,6 +31,8 @@ def cmd_lint(args: argparse.Namespace, registry: ChainRegistry) -> int:
 
     for chain_name, report in results.items():
         for issue in report.issues:
+            if args.errors_only and not issue.is_error():
+                continue
             print(str(issue))
             total_issues += 1
         if report.has_errors():
@@ -44,7 +46,7 @@ def cmd_lint(args: argparse.Namespace, registry: ChainRegistry) -> int:
 
     if has_errors:
         return 2
-    if has_warnings:
+    if has_warnings and not args.errors_only:
         return 1
     return 0
 
