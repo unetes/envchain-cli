@@ -12,6 +12,14 @@ from envchain.auditor import load_log, filter_log, AuditEntry
 DEFAULT_LOG = Path(".envchain") / "audit.jsonl"
 
 
+def _format_entry(entry: AuditEntry) -> str:
+    """Format a single audit entry for display."""
+    old = entry.old_value if entry.old_value is not None else "-"
+    new = entry.new_value if entry.new_value is not None else "-"
+    note = f"  # {entry.note}" if entry.note else ""
+    return f"{entry}  {old} -> {new}{note}"
+
+
 def cmd_audit_log(args: argparse.Namespace, log_path: Path = DEFAULT_LOG) -> int:
     """Print filtered audit log entries to stdout."""
     entries = load_log(log_path)
@@ -34,10 +42,7 @@ def cmd_audit_log(args: argparse.Namespace, log_path: Path = DEFAULT_LOG) -> int
         return 0
 
     for entry in filtered:
-        old = entry.old_value if entry.old_value is not None else "-"
-        new = entry.new_value if entry.new_value is not None else "-"
-        note = f"  # {entry.note}" if entry.note else ""
-        print(f"{entry}  {old} -> {new}{note}")
+        print(_format_entry(entry))
 
     return 0
 
