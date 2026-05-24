@@ -72,3 +72,13 @@ def test_no_header_roundtrip():
     # because it won't match the literal header pattern.
     parsed = parse_csv(csv_text)
     assert parsed["dev"] == vars_
+
+
+def test_special_characters_in_chain_name_roundtrip():
+    """Chain names containing spaces or hyphens should survive a roundtrip."""
+    vars_ = {"KEY": "value"}
+    for chain_name in ("my-chain", "my chain", "chain_1"):
+        csv_text = export_csv(chain_name, vars_)
+        parsed = parse_csv(csv_text)
+        assert chain_name in parsed, f"Chain '{chain_name}' missing from parsed output"
+        assert parsed[chain_name] == vars_
