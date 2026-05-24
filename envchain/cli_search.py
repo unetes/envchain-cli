@@ -11,6 +11,22 @@ def _format_result_text(r) -> str:
     return f"  [{r.chain_name}] {r.key}={r.value}{tag}"
 
 
+def _format_result_json(results) -> str:
+    """Serialize a list of search results to a JSON string."""
+    import json
+
+    output = [
+        {
+            "chain": r.chain_name,
+            "key": r.key,
+            "value": r.value,
+            "matched_value": r.matched_value,
+        }
+        for r in results
+    ]
+    return json.dumps(output, indent=2)
+
+
 def cmd_search(args: argparse.Namespace, registry: ChainRegistry) -> int:
     """Search for a key (and optionally value) across chains.
 
@@ -39,12 +55,7 @@ def cmd_search(args: argparse.Namespace, registry: ChainRegistry) -> int:
     fmt = getattr(args, "format", "text")
 
     if fmt == "json":
-        import json
-        output = [
-            {"chain": r.chain_name, "key": r.key, "value": r.value, "matched_value": r.matched_value}
-            for r in summary.results
-        ]
-        print(json.dumps(output, indent=2))
+        print(_format_result_json(summary.results))
     else:
         print(f"Found {summary.total} result(s) for '{query}':")
         for r in summary.results:
