@@ -7,6 +7,7 @@ from envchain.registry import ChainRegistry
 
 
 def _make_registry():
+    """Create a small registry with 'base' and 'child' chains for testing."""
     reg = ChainRegistry()
     reg.add("base", vars={"HOST": "localhost", "PORT": "5432", "DEBUG": "false"})
     reg.add("child", vars={"DEBUG": "true"}, parent="base")
@@ -66,6 +67,13 @@ def test_copy_chain_overwrite_replaces_dst():
     reg = _make_registry()
     copy_chain(reg, "base", "child", overwrite=True)
     assert reg.get("child")["vars"] == {"HOST": "localhost", "PORT": "5432", "DEBUG": "false"}
+
+
+def test_copy_chain_overwrite_clears_old_parent():
+    """Overwriting a child chain with a parentless source should remove the old parent."""
+    reg = _make_registry()
+    copy_chain(reg, "base", "child", overwrite=True, inherit_parent=False)
+    assert reg.get("child").get("parent") is None
 
 
 def test_copy_chain_invalid_dst_name_raises():
